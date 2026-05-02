@@ -1,17 +1,29 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: myapp-ingress
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: myapp-service
-                port:
-                  number: 80
+resource "kubernetes_ingress_v1" "app_ingress" {
+  metadata {
+    name = "myapp-ingress"
+
+    annotations = {
+      "alb.ingress.kubernetes.io/scheme" = "internet-facing"
+    }
+  }
+
+  spec {
+    rule {
+      http {
+        path {
+          path = "/"
+          path_type = "Prefix"
+
+          backend {
+            service {
+              name = kubernetes_service.app.metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
